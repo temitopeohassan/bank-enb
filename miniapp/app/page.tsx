@@ -1,10 +1,22 @@
+'use client'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Coins, TrendingUp, Users, Gift } from "lucide-react"
 import Link from "next/link"
+import { useFarcasterContext } from "@/components/farcaster-provider"
+import { WalletStatus } from "@/components/wallet-status"
 
 export default function HomePage() {
+  const { isReady, isFarcaster, walletAddress, isWalletConnected } = useFarcasterContext()
+
+  // Function to truncate wallet address
+  const truncateAddress = (address: string) => {
+    if (!address) return ''
+    return `${address.slice(0, 6)}...${address.slice(-4)}`
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -17,9 +29,21 @@ export default function HomePage() {
               </div>
               <h1 className="text-xl font-bold text-foreground">Bank ENB</h1>
             </div>
-            <Badge variant="secondary" className="bg-accent/10 text-accent-foreground">
-              Connected
-            </Badge>
+            <div className="flex items-center space-x-2">
+              {isFarcaster && (
+                <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">
+                  {isReady ? 'Ready' : 'Loading...'}
+                </Badge>
+              )}
+              <Badge variant="secondary" className="bg-accent/10 text-accent-foreground">
+                {isWalletConnected && walletAddress 
+                  ? truncateAddress(walletAddress)
+                  : isFarcaster 
+                    ? 'Farcaster' 
+                    : 'Connected'
+                }
+              </Badge>
+            </div>
           </div>
         </div>
       </header>
@@ -140,6 +164,11 @@ export default function HomePage() {
             <div className="text-2xl font-bold text-accent">5</div>
             <div className="text-sm text-muted-foreground">Raffle Entries</div>
           </div>
+        </div>
+
+        {/* Wallet Status */}
+        <div className="mt-8">
+          <WalletStatus />
         </div>
       </main>
 

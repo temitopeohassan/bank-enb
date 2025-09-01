@@ -1,13 +1,15 @@
 import type { Metadata } from 'next'
-import { GeistSans } from 'geist/font/sans'
-import { GeistMono } from 'geist/font/mono'
-import { Analytics } from '@vercel/analytics/next'
+import { GeistSans } from 'geist/font'
+import { GeistMono } from 'geist/font'
+import { Analytics } from '@vercel/analytics/react'
+import React from 'react'
+import { WagmiAppProvider } from '@/components/wagmi-provider'
+import { FarcasterProvider } from '@/components/farcaster-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'Bank ENB',
+  description: 'Your community-driven financial hub on Farcaster. Earn, stake, save, and win together.',
 }
 
 export default function RootLayout({
@@ -17,8 +19,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script src="https://unpkg.com/@farcaster/miniapp-sdk@0.1.9/dist/index.js" />
+      </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
-        {children}
+        <WagmiAppProvider>
+          <FarcasterProvider>
+            {children}
+          </FarcasterProvider>
+        </WagmiAppProvider>
         <Analytics />
       </body>
     </html>
