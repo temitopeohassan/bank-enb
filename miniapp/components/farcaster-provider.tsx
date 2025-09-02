@@ -7,7 +7,7 @@ import { sdk } from '@farcaster/miniapp-sdk'
 interface FarcasterContextType {
   isReady: boolean
   isFarcaster: boolean
-  ready: (options?: { disableNativeGestures?: boolean }) => void
+  ready: (options?: { disableNativeGestures?: boolean }) => Promise<void>
   disableNativeGestures: (disable: boolean) => void
   walletAddress: string | undefined
   isWalletConnected: boolean
@@ -16,7 +16,7 @@ interface FarcasterContextType {
 const FarcasterContext = createContext<FarcasterContextType>({
   isReady: false,
   isFarcaster: false,
-  ready: () => {},
+  ready: async () => {},
   disableNativeGestures: () => {},
   walletAddress: undefined,
   isWalletConnected: false,
@@ -52,13 +52,14 @@ function FarcasterProviderInner({ children }: FarcasterProviderProps) {
       return false
     }
 
-    // Call ready when the interface is loaded
-    const callReady = () => {
+    // Call ready when the interface is loaded - following official docs
+    const callReady = async () => {
       if (checkFarcaster()) {
         try {
-          sdk.actions.ready()
+          // Use await as shown in the official documentation
+          await sdk.actions.ready()
           setIsReady(true)
-          console.log('Farcaster Mini App ready called')
+          console.log('Farcaster Mini App ready called successfully')
         } catch (error) {
           console.error('Error calling Farcaster ready:', error)
         }
@@ -81,10 +82,11 @@ function FarcasterProviderInner({ children }: FarcasterProviderProps) {
     }
   }, [isFarcaster, isConnected, connectors, connect])
 
-  const ready = (options?: { disableNativeGestures?: boolean }) => {
+  const ready = async (options?: { disableNativeGestures?: boolean }) => {
     try {
       if (sdk && typeof sdk.actions !== 'undefined') {
-        sdk.actions.ready(options)
+        // Use await as shown in the official documentation
+        await sdk.actions.ready(options)
         setIsReady(true)
         console.log('Farcaster ready called manually', options)
       }
@@ -114,6 +116,39 @@ function FarcasterProviderInner({ children }: FarcasterProviderProps) {
   )
 }
 
+// Component that waits for QueryClient to be ready
+function QueryClientWrapper({ children }: FarcasterProviderProps) {
+  const [queryClientReady, setQueryClientReady] = useState(false)
+
+  useEffect(() => {
+    // Use a timeout to ensure QueryClient is initialized
+    const timer = setTimeout(() => {
+      setQueryClientReady(true)
+    }, 200) // Give more time for QueryClient to initialize
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (!queryClientReady) {
+    const defaultValue: FarcasterContextType = {
+      isReady: false,
+      isFarcaster: false,
+      ready: async () => {},
+      disableNativeGestures: () => {},
+      walletAddress: undefined,
+      isWalletConnected: false,
+    }
+
+    return (
+      <FarcasterContext.Provider value={defaultValue}>
+        {children}
+      </FarcasterContext.Provider>
+    )
+  }
+
+  return <FarcasterProviderInner>{children}</FarcasterProviderInner>
+}
+
 // Main provider component that handles SSR
 export function FarcasterProvider({ children }: FarcasterProviderProps) {
   const [mounted, setMounted] = useState(false)
@@ -127,7 +162,7 @@ export function FarcasterProvider({ children }: FarcasterProviderProps) {
     const defaultValue: FarcasterContextType = {
       isReady: false,
       isFarcaster: false,
-      ready: () => {},
+      ready: async () => {},
       disableNativeGestures: () => {},
       walletAddress: undefined,
       isWalletConnected: false,
@@ -140,6 +175,6 @@ export function FarcasterProvider({ children }: FarcasterProviderProps) {
     )
   }
 
-  // After mounting, use the full provider with wagmi hooks
-  return <FarcasterProviderInner>{children}</FarcasterProviderInner>
+  // After mounting, use the QueryClient wrapper
+  return <QueryClientWrapper>{children}</QueryClientWrapper>
 }

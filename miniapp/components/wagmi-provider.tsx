@@ -20,6 +20,12 @@ export function WagmiAppProvider({ children }: WagmiAppProviderProps) {
     },
   }))
 
+  // Add error boundary for QueryClient issues
+  if (!queryClient) {
+    console.error('QueryClient not initialized')
+    return <div>Loading...</div>
+  }
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
