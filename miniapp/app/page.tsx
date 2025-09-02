@@ -7,14 +7,35 @@ import { Coins, TrendingUp, Users, Gift } from "lucide-react"
 import Link from "next/link"
 import { useFarcasterContext } from "@/components/farcaster-provider"
 import { WalletStatus } from "@/components/wallet-status"
+import { useEffect, useState } from "react"
 
 export default function HomePage() {
+  const [mounted, setMounted] = useState(false)
   const { isReady, isFarcaster, walletAddress, isWalletConnected } = useFarcasterContext()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Function to truncate wallet address
   const truncateAddress = (address: string) => {
     if (!address) return ''
     return `${address.slice(0, 6)}...${address.slice(-4)}`
+  }
+
+  // Show loading state during SSR
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4">
+            <Coins className="w-5 h-5 text-primary-foreground" />
+          </div>
+          <h1 className="text-xl font-bold text-foreground mb-2">Bank ENB</h1>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
