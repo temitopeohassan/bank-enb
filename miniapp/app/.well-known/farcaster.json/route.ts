@@ -19,7 +19,7 @@ export async function GET() {
       heroImageUrl:
         'https://bank-enb.vercel.app/image.png',
       webhookUrl: 'https://bank-enb.vercel.app/api/webhook',
-      subtitle: 'Earn, stake, save, and win together.',
+      subtitle: 'Earn, stake, save',
       description: 'Your community-driven financial hub on Farcaster.',
       "screenshotUrls": [
       "https://bank-enb.vercel.app/IMG_1781.jpg",
@@ -33,7 +33,7 @@ export async function GET() {
       "save",
       "win"
     ],
-      tagline: 'Earn, stake, save, and win together.',
+      tagline: 'Earn, stake, save',
       ogTitle: 'Bank ENB',
       ogDescription: 'Your community-driven financial hub on Farcaster.',
       ogImageUrl:
