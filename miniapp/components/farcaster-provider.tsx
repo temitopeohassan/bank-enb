@@ -28,23 +28,16 @@ interface FarcasterProviderProps {
   children: React.ReactNode
 }
 
-export function FarcasterProvider({ children }: FarcasterProviderProps) {
+// Component that handles wagmi hooks - only rendered after mounting
+function FarcasterProviderInner({ children }: FarcasterProviderProps) {
   const [isReady, setIsReady] = useState(false)
   const [isFarcaster, setIsFarcaster] = useState(false)
-  const [mounted, setMounted] = useState(false)
   
   // Wagmi hooks for wallet connection
   const { isConnected, address } = useAccount()
   const { connect, connectors } = useConnect()
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    // Only run Farcaster checks after component is mounted
-    if (!mounted) return
-
     // Check if we're running in a Farcaster Mini App
     const checkFarcaster = () => {
       try {
@@ -78,7 +71,7 @@ export function FarcasterProvider({ children }: FarcasterProviderProps) {
     }, 100)
 
     return () => clearTimeout(timer)
-  }, [mounted])
+  }, [])
 
   // Auto-connect wallet when in Farcaster
   useEffect(() => {
@@ -119,4 +112,34 @@ export function FarcasterProvider({ children }: FarcasterProviderProps) {
       {children}
     </FarcasterContext.Provider>
   )
+}
+
+// Main provider component that handles SSR
+export function FarcasterProvider({ children }: FarcasterProviderProps) {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // During SSR, provide default values
+  if (!mounted) {
+    const defaultValue: FarcasterContextType = {
+      isReady: false,
+      isFarcaster: false,
+      ready: () => {},
+      disableNativeGestures: () => {},
+      walletAddress: undefined,
+      isWalletConnected: false,
+    }
+
+    return (
+      <FarcasterContext.Provider value={defaultValue}>
+        {children}
+      </FarcasterContext.Provider>
+    )
+  }
+
+  // After mounting, use the full provider with wagmi hooks
+  return <FarcasterProviderInner>{children}</FarcasterProviderInner>
 }
