@@ -3,12 +3,34 @@
 import { useAccount, useBalance } from 'wagmi'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useEffect, useState } from 'react'
 
 export function WalletStatus() {
+  const [mounted, setMounted] = useState(false)
   const { isConnected, address, chainId } = useAccount()
   const { data: balance } = useBalance({
     address,
   })
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Don't render anything until mounted to avoid SSR issues
+  if (!mounted) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>Wallet Status</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Badge variant="outline" className="text-muted-foreground">
+            Loading...
+          </Badge>
+        </CardContent>
+      </Card>
+    )
+  }
 
   if (!isConnected || !address) {
     return (

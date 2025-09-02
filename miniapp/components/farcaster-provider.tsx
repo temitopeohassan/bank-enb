@@ -31,12 +31,20 @@ interface FarcasterProviderProps {
 export function FarcasterProvider({ children }: FarcasterProviderProps) {
   const [isReady, setIsReady] = useState(false)
   const [isFarcaster, setIsFarcaster] = useState(false)
+  const [mounted, setMounted] = useState(false)
   
   // Wagmi hooks for wallet connection
   const { isConnected, address } = useAccount()
   const { connect, connectors } = useConnect()
 
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    // Only run Farcaster checks after component is mounted
+    if (!mounted) return
+
     // Check if we're running in a Farcaster Mini App
     const checkFarcaster = () => {
       try {
@@ -70,7 +78,7 @@ export function FarcasterProvider({ children }: FarcasterProviderProps) {
     }, 100)
 
     return () => clearTimeout(timer)
-  }, [])
+  }, [mounted])
 
   // Auto-connect wallet when in Farcaster
   useEffect(() => {
