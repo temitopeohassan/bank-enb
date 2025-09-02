@@ -19,9 +19,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <script src="https://unpkg.com/@farcaster/miniapp-sdk@0.1.9/dist/index.js" />
-      </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         <WagmiAppProvider>
           <FarcasterProvider>

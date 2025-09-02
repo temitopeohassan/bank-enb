@@ -40,9 +40,6 @@ export async function GET() {
         'https://bank-enb.vercel.app/og-image.png',
       castShareUrl: 'https://bank-enb.vercel.app/',
     },
-   "baseBuilder": {
-    "allowedAddresses": ["0x14E85A3859B7532CB31E16EA66fB5F981B6dE1C0"]
-    },
   };
 
   return NextResponse.json(config);

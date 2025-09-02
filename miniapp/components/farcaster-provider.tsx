@@ -2,22 +2,12 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useAccount, useConnect } from 'wagmi'
-
-interface FarcasterContext {
-  ready: () => void
-  disableNativeGestures: (disable: boolean) => void
-}
-
-declare global {
-  interface Window {
-    farcaster?: FarcasterContext
-  }
-}
+import { sdk } from '@farcaster/miniapp-sdk'
 
 interface FarcasterContextType {
   isReady: boolean
   isFarcaster: boolean
-  ready: () => void
+  ready: (options?: { disableNativeGestures?: boolean }) => void
   disableNativeGestures: (disable: boolean) => void
   walletAddress: string | undefined
   isWalletConnected: boolean
@@ -49,9 +39,14 @@ export function FarcasterProvider({ children }: FarcasterProviderProps) {
   useEffect(() => {
     // Check if we're running in a Farcaster Mini App
     const checkFarcaster = () => {
-      if (typeof window !== 'undefined' && window.farcaster) {
-        setIsFarcaster(true)
-        return true
+      try {
+        // Check if SDK is available
+        if (sdk && typeof sdk.actions !== 'undefined') {
+          setIsFarcaster(true)
+          return true
+        }
+      } catch (error) {
+        console.log('Not running in Farcaster environment:', error)
       }
       return false
     }
@@ -60,7 +55,7 @@ export function FarcasterProvider({ children }: FarcasterProviderProps) {
     const callReady = () => {
       if (checkFarcaster()) {
         try {
-          window.farcaster?.ready()
+          sdk.actions.ready()
           setIsReady(true)
           console.log('Farcaster Mini App ready called')
         } catch (error) {
@@ -85,25 +80,21 @@ export function FarcasterProvider({ children }: FarcasterProviderProps) {
     }
   }, [isFarcaster, isConnected, connectors, connect])
 
-  const ready = () => {
-    if (typeof window !== 'undefined' && window.farcaster) {
-      try {
-        window.farcaster.ready()
+  const ready = (options?: { disableNativeGestures?: boolean }) => {
+    try {
+      if (sdk && typeof sdk.actions !== 'undefined') {
+        sdk.actions.ready(options)
         setIsReady(true)
-      } catch (error) {
-        console.error('Error calling Farcaster ready:', error)
+        console.log('Farcaster ready called manually', options)
       }
+    } catch (error) {
+      console.error('Error calling Farcaster ready:', error)
     }
   }
 
   const disableNativeGestures = (disable: boolean) => {
-    if (typeof window !== 'undefined' && window.farcaster) {
-      try {
-        window.farcaster.disableNativeGestures(disable)
-      } catch (error) {
-        console.error('Error disabling native gestures:', error)
-      }
-    }
+    // This function now calls ready with the disableNativeGestures option
+    ready({ disableNativeGestures: disable })
   }
 
   const value: FarcasterContextType = {
