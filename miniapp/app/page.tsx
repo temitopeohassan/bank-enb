@@ -1,41 +1,27 @@
 'use client'
 
+import { useEffect } from "react"
+import { sdk } from '@farcaster/miniapp-sdk'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Coins, TrendingUp, Users, Gift } from "lucide-react"
+import { Coins, TrendingUp, Users, Gift, User } from "lucide-react"
 import Link from "next/link"
 import { useFarcasterContext } from "@/components/farcaster-provider"
 import { WalletStatus } from "@/components/wallet-status"
-import { useEffect, useState } from "react"
 
 export default function HomePage() {
-  const [mounted, setMounted] = useState(false)
   const { isReady, isFarcaster, walletAddress, isWalletConnected } = useFarcasterContext()
 
+  // Signal to Farcaster that the app is ready once mounted
   useEffect(() => {
-    setMounted(true)
+    sdk.actions.ready()
   }, [])
 
   // Function to truncate wallet address
   const truncateAddress = (address: string) => {
-    if (!address) return ''
+    if (!address) return ""
     return `${address.slice(0, 6)}...${address.slice(-4)}`
-  }
-
-  // Show loading state during SSR
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4">
-            <Coins className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <h1 className="text-xl font-bold text-foreground mb-2">Bank ENB</h1>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -53,16 +39,15 @@ export default function HomePage() {
             <div className="flex items-center space-x-2">
               {isFarcaster && (
                 <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">
-                  {isReady ? 'Ready' : 'Loading...'}
+                  {isReady ? "Ready" : "Loading..."}
                 </Badge>
               )}
               <Badge variant="secondary" className="bg-accent/10 text-accent-foreground">
-                {isWalletConnected && walletAddress 
+                {isWalletConnected && walletAddress
                   ? truncateAddress(walletAddress)
-                  : isFarcaster 
-                    ? 'Farcaster' 
-                    : 'Connected'
-                }
+                  : isFarcaster
+                    ? "Farcaster"
+                    : "Not Connected"}
               </Badge>
             </div>
           </div>
@@ -73,8 +58,8 @@ export default function HomePage() {
       <main className="container mx-auto px-4 py-6 pb-20">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-foreground mb-2 text-balance">Welcome to Bank ENB</h2>
-          <p className="text-muted-foreground text-pretty">
+          <h2 className="text-2xl font-bold text-foreground mb-2">Welcome to Bank ENB</h2>
+          <p className="text-muted-foreground">
             Your community-driven financial hub on Farcaster. Earn, stake, save, and win together.
           </p>
         </div>
@@ -129,7 +114,7 @@ export default function HomePage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-chart-3" />
+                  <TrendingUp className="w-5 h-5 text-green-500" />
                   Stake ENB, Earn USDC
                 </CardTitle>
                 <Badge variant="secondary">Active</Badge>
@@ -150,7 +135,7 @@ export default function HomePage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Users className="w-5 h-5 text-chart-2" />
+                  <Users className="w-5 h-5 text-blue-500" />
                   Contribution Plan
                 </CardTitle>
                 <Badge variant="secondary">Stokvel</Badge>
@@ -174,11 +159,11 @@ export default function HomePage() {
             <div className="text-sm text-muted-foreground">ENB Balance</div>
           </div>
           <div className="text-center p-4 bg-card rounded-lg border">
-            <div className="text-2xl font-bold text-chart-3">$56.78</div>
+            <div className="text-2xl font-bold text-green-500">$56.78</div>
             <div className="text-sm text-muted-foreground">USDC Earned</div>
           </div>
           <div className="text-center p-4 bg-card rounded-lg border">
-            <div className="text-2xl font-bold text-chart-2">890</div>
+            <div className="text-2xl font-bold text-blue-500">890</div>
             <div className="text-sm text-muted-foreground">Staked ENB</div>
           </div>
           <div className="text-center p-4 bg-card rounded-lg border">
@@ -219,7 +204,7 @@ export default function HomePage() {
               href="/profile"
               className="flex flex-col items-center py-2 px-3 text-muted-foreground hover:text-foreground"
             >
-              <Gift className="w-5 h-5 mb-1" />
+              <User className="w-5 h-5 mb-1" />
               <span className="text-xs font-medium">Profile</span>
             </Link>
           </div>

@@ -22,9 +22,9 @@ export async function GET() {
       subtitle: 'Earn, stake, save',
       description: 'Your community-driven financial hub on Farcaster.',
       "screenshotUrls": [
-      "https://bank-enb.vercel.app/IMG_1781.jpg",
-      "https://bank-enb.vercel.app/IMG_1782.jpg",
-      "https://bank-enb.vercel.app/IMG_1780.jpg"
+      "https://bank-enb.vercel.app/1.jpg",
+      "https://bank-enb.vercel.app/2.jpg",
+      "https://bank-enb.vercel.app/3.jpg"
     ],
       primaryCategory: 'finance',
      tags: [
